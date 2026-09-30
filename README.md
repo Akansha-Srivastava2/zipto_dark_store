@@ -10,6 +10,9 @@ The project analyzes different aspects of dark store data, including product per
 
 The analysis was performed using SQL and Microsoft Excel to transform raw data into meaningful business insights and identify areas where operational performance can be improved.
 
+## 🌐 Dashboard
+[🔗 View Zipto Interactive Dashboard](https://akansha-srivastava2.github.io/zipto_dark_store/)
+
 
 ---
 
