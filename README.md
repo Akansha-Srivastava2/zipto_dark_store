@@ -1,4 +1,4 @@
-Bilkul. GitHub ke README ke liye thoda detailed aur Data Analyst portfolio jaisa professional version ye rahega:
+
 
 🚚 Zipto – Dark Store Data Analysis
 
