@@ -1,0 +1,126 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Zipto Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#0a0a0a;--card:#161016;--pink:#e6007e;--pink2:#ff4fa8;--line:#3a1229;--t:#fff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--t);font-family:'Segoe UI',system-ui,Arial,sans-serif}
+header{padding:22px 20px 8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{font-size:32px;font-weight:800;letter-spacing:1px}.logo span{color:var(--pink)}
+.sub{opacity:.7;font-size:14px}
+nav{display:flex;gap:8px;padding:10px 20px;overflow-x:auto;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;border-bottom:1px solid var(--line)}
+nav button{background:var(--card);color:#fff;border:1px solid var(--line);padding:10px 18px;border-radius:24px;cursor:pointer;font-size:14px;white-space:nowrap}
+nav button.on{background:linear-gradient(90deg,#b0005f,var(--pink));border-color:var(--pink);box-shadow:0 0 14px #e6007e66}
+main{padding:20px;max-width:1200px;margin:auto}
+.tab{display:none}.tab.on{display:block}
+h2{margin:0 0 14px;font-size:20px;border-left:4px solid var(--pink);padding-left:10px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:18px}
+.k{background:linear-gradient(145deg,#1c0b15,var(--card));border:1px solid var(--line);border-radius:14px;padding:16px}
+.k b{display:block;font-size:24px;color:var(--pink2);margin-top:6px}.k small{opacity:.75}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px}
+.c{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.c h3{margin:0 0 10px;font-size:15px;color:var(--pink2)}
+.c canvas{max-height:340px}
+.wide{grid-column:1/-1}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right}th:first-child,td:first-child{text-align:left}
+th{color:var(--pink2)}.neg{color:#ff6b8a;font-weight:600}
+.note{background:#1c0b15;border-left:4px solid var(--pink);padding:12px 14px;border-radius:8px;margin-top:16px;font-size:14px;line-height:1.5}
+.sl{display:flex;flex-wrap:wrap;gap:14px;background:#120a10;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:16px}
+.sg{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.sg span{font-size:12px;color:var(--pink2);text-transform:uppercase;letter-spacing:.5px;margin-right:4px}
+.sg button{background:#000;color:#fff;border:1px solid var(--pink3,#8c0050);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:13px}
+.sg button.on{background:var(--pink);border-color:var(--pink2)}
+</style></head><body>
+<header><div class="logo">ZIP<span>TO</span></div><div class="sub">Operations &amp; Sales Dashboard · May 2026</div></header>
+<nav id="nav"></nav>
+<main>
+<section class="tab" id="overview"><h2>Overview</h2>
+<div class="kpis" id="kpis"></div>
+<div class="grid"><div class="c"><h3>Revenue vs Unit Cost vs Profit</h3><canvas id="c1"></canvas></div>
+<div class="c"><h3>Revenue split</h3><canvas id="c2"></canvas></div></div></section>
+
+<section class="tab" id="products"><h2>Product Performance</h2>
+<div class="grid"><div class="c wide"><h3>Revenue by SKU</h3><canvas id="c3"></canvas></div>
+<div class="c wide"><h3>Quantity sold by SKU</h3><canvas id="c4"></canvas></div>
+<div class="c wide"><h3>Top 10 SKUs by revenue</h3><canvas id="c5"></canvas></div></div></section>
+
+<section class="tab" id="profit"><h2>Product Profitability</h2>
+<div class="grid"><div class="c wide"><h3>Profit by SKU (red = loss)</h3><canvas id="c6"></canvas></div>
+<div class="c wide"><h3>Profit margin % by SKU</h3><canvas id="c7"></canvas></div>
+<div class="c wide"><h3>SKU details (lowest profit first)</h3><div class="tw"><table id="loss"></table></div></div></div>
+<div class="note">6 SKUs loss mein hain (SKU0016, 0019, 0023, 0028, 0030, 0035), total loss ≈ 8,259. Inki pricing ya unit cost review karni chahiye.</div></section>
+
+<section class="tab" id="delivery"><h2>Delivery Status</h2>
+<div class="grid"><div class="c"><h3>Delivered / Returned / Cancelled</h3><canvas id="c8"></canvas></div>
+<div class="c"><h3>On-time vs Delayed</h3><canvas id="c9"></canvas></div></div>
+<div class="note">Delivered 93.4% · Returned 4.3% · Cancelled 2.3%. Sirf 43% orders on-time hain, jabki 57% delayed. Yahi sabse bada improvement area hai. Average delay 2.09 min, average delivery time 10.83 min.</div></section>
+
+<section class="tab" id="partners"><h2>Partner Performance</h2>
+<div class="grid"><div class="c"><h3>Top 10 partners by contribution</h3><canvas id="c10"></canvas></div>
+<div class="c"><h3>Bottom 7 partners by contribution</h3><canvas id="c11"></canvas></div>
+<div class="c wide"><h3>Top 10 partners: rating &amp; avg delivery time</h3><div class="tw"><table id="ptab"></table></div></div></div>
+<div class="note">Total contribution 1,89,165 · Average rating 4.14 · Avg distance 2.9 km. Partner 0075 (-1,050) aur Partner 0024 (-370) negative contribution de rahe hain.</div></section>
+
+<section class="tab" id="vehicles"><h2>Vehicle Type Performance</h2>
+<div class="grid"><div class="c"><h3>On-time % by vehicle</h3><canvas id="c12"></canvas></div>
+<div class="c"><h3>Trips by vehicle</h3><canvas id="c13"></canvas></div>
+<div class="c wide"><h3>Avg delay &amp; delivery time (min)</h3><canvas id="c14"></canvas></div></div>
+<div class="note">Petrol Scooter (45.0%) aur Bicycle (44.4%) EV Scooter (40.8%) se zyada on-time hain. EV Scooter ke trips sabse zyada hain (2,534), lekin on-time % sabse kam hai.</div></section>
+</main>
+<script>
+const P='#e6007e',P2='#ff4fa8',P3='#8c0050',W='#fff',G='rgba(255,255,255,.12)',RED='#ff3b5c';
+Chart.defaults.color=W;Chart.defaults.borderColor=G;Chart.defaults.font.family="'Segoe UI',Arial,sans-serif";
+// [qty,revenue,profit,unit_cost]
+const S=[[116,6680,1582,3445],[132,15888,3521,8739],[109,9462,2063,5297],[118,17450,4450,8483],[136,18484,4978,8345],[122,9177,2064,5187],[143,6554,1331,3485],[119,12671,3484,6555],[124,17815,3342,10029],[136,20361,4749,10790],[107,7410,1490,3981],[135,5199,1361,2754],[90,16075,3641,9533],[126,12939,2770,6884],[130,22493,4467,12341],[112,17927,-1218,13302],[97,3999,742,2627],[109,15198,3359,8254],[103,18644,-1678,15192],[107,12996,2939,6767],[117,13597,2837,7358],[100,10784,2087,6338],[99,17414,-1475,15054],[110,5862,1616,3165],[131,18428,3481,10155],[153,25540,4764,13937],[105,9789,2182,5515],[143,6305,-704,4563],[202,27846,8850,12846],[199,6915,-672,5277],[206,32313,12599,13104],[152,25012,9443,10538],[218,20270,6116,9914],[220,10276,3058,4880],[158,27919,-2512,20801],[166,19922,8260,8604],[146,15953,6727,6667],[187,32441,13437,12401],[201,12954,4129,6213],[240,40838,15615,15768],[182,15590,5899,6380],[163,15337,4783,8159],[168,14878,5813,6259],[198,10761,3547,5111],[208,28350,11430,11067],[189,10830,3254,4986],[192,12083,4891,4747],[174,22044,8698,8884],[201,16464,6481,7311],[174,26989,8592,13417],[214,14111,4909,6111],[190,6612,2418,2995],[217,35334,11988,14461],[168,22446,8613,9453]];
+const L=S.map((_,i)=>'SKU'+String(i+1).padStart(4,'0'));
+// [id,trips,rating,minutes,contribution]
+const PT=[['0044',121,4.0,11.4,4989],['0006',105,4.2,12.0,4450],['0016',86,3.9,10.3,4198],['0010',98,3.5,10.9,4045],['0017',93,4.6,10.9,3956],['0012',90,3.4,12.0,3897],['0022',92,3.9,10.8,3757],['0008',97,4.6,10.0,3754],['0019',108,4.8,10.5,3559],['0038',96,4.1,11.1,3524]];
+const BT=[['0075',-1050],['0024',-370],['0091',-194],['0058',59],['0088',83],['0074',147],['0073',350]];
+const fmt=n=>n.toLocaleString('en-IN');
+const K=[['Total Revenue','8,99,628'],['Total Profit','2,40,590'],['Profit Margin','26.7%'],['Total Trips','5,697'],['Units Sold','8,262'],['On-time %','42.95%'],['Avg Rating','4.14 ★'],['Avg Delivery Time','10.8 min']];
+document.getElementById('kpis').innerHTML=K.map(k=>`<div class="k"><small>${k[0]}</small><b>${k[1]}</b></div>`).join('');
+const pal=[P,P2,P3,'#ff9ccc','#b0005f'];
+const bar=(id,labels,ds,o={})=>{Chart.getChart(id)?.destroy();return new Chart(id,{type:o.type||'bar',data:{labels,datasets:ds},options:Object.assign({responsive:true,plugins:{legend:{display:ds.length>1}},scales:o.noscale?{}:{x:{ticks:{maxRotation:70,autoSkip:true}},y:{}}},o.opt||{})})};
+const built={};
+const F={sku:'all',dv:[0,1,2],dt:[0,1],rt:'all',vh:[0,1,2]};
+const SKF={all:()=>1,profit:s=>s[2]>=0,loss:s=>s[2]<0,vol:s=>s[0]>=150,rev:s=>s[1]>20000};
+const RF={all:()=>1,'4.5':p=>p[2]>=4.5,'4':p=>p[2]>=4,low:p=>p[2]<4};
+const VD=[['Bicycle',44.37,1875,2.0,11.0],['EV Scooter',40.84,2534,2.2,10.8],['Petrol Scooter',45.03,1288,2.1,10.6]];
+const VC=[P,P2,P3];
+const skuOpts=[['all','All'],['profit','Profitable'],['loss','Loss-making'],['vol','150+ units'],['rev','Revenue > 20k']];
+const SL={products:[['sku','SKU',skuOpts]],profit:[['sku','SKU',skuOpts]],
+delivery:[['dv','Status',[[0,'Delivered'],[1,'Returned'],[2,'Cancelled']],1],['dt','Timing',[[0,'Delayed'],[1,'On-time']],1]],
+partners:[['rt','Partner rating',[['all','All'],['4.5','4.5+'],['4','4.0+'],['low','Below 4.0']]]],
+vehicles:[['vh','Vehicle',[[0,'Bicycle'],[1,'EV Scooter'],[2,'Petrol Scooter']],1]]};
+let cur='overview';
+const ix=()=>S.map((_,i)=>i).filter(i=>SKF[F.sku](S[i]));
+const dn=(id,a)=>bar(id,a.map(x=>x[0]),[{data:a.map(x=>x[1]),backgroundColor:a.map(x=>x[2]),borderColor:'#0a0a0a'}],{type:'doughnut',noscale:1,opt:{plugins:{legend:{display:true}}}});
+function pick(k,v,m){if(m){v=+v;const a=F[k];if(a.includes(v)){if(a.length>1)F[k]=a.filter(x=>x!=v)}else F[k]=[...a,v].sort()}else F[k]=v;renderSL();B[cur]()}
+function renderSL(){for(const t in SL){let d=document.getElementById('sl-'+t);if(!d){d=document.createElement('div');d.id='sl-'+t;d.className='sl';document.querySelector('#'+t+' h2').after(d)}
+d.innerHTML=SL[t].map(g=>`<div class="sg"><span>${g[1]}</span>${g[2].map(o=>{const on=g[3]?F[g[0]].includes(o[0]):F[g[0]]===o[0];return `<button class="${on?'on':''}" onclick="pick('${g[0]}','${o[0]}',${g[3]?1:0})">${o[1]}</button>`}).join('')}</div>`).join('')}}
+const B={
+overview(){bar('c1',['May-2026'],[{label:'Revenue',data:[899628],backgroundColor:P},{label:'Unit Cost',data:[454432],backgroundColor:P3},{label:'Profit',data:[240590],backgroundColor:P2}]);
+dn('c2',[['Unit cost',454432,P3],['Profit',240590,P2],['Other',899628-454432-240590,'#444']])},
+products(){const I=ix(),l=I.map(i=>L[i]);bar('c3',l,[{label:'Revenue',data:I.map(i=>S[i][1]),backgroundColor:P}]);
+bar('c4',l,[{label:'Quantity',data:I.map(i=>S[i][0]),backgroundColor:P2}]);
+const t=I.map(i=>[L[i],S[i][1]]).sort((a,b)=>b[1]-a[1]).slice(0,10);
+bar('c5',t.map(x=>x[0]),[{label:'Revenue',data:t.map(x=>x[1]),backgroundColor:P}],{opt:{indexAxis:'y',plugins:{legend:{display:false}}}})},
+profit(){const I=ix(),l=I.map(i=>L[i]);bar('c6',l,[{label:'Profit',data:I.map(i=>S[i][2]),backgroundColor:I.map(i=>S[i][2]<0?RED:P)}]);
+bar('c7',l,[{label:'Margin %',data:I.map(i=>+(S[i][2]/S[i][1]*100).toFixed(1)),backgroundColor:I.map(i=>S[i][2]<0?RED:P2)}]);
+document.getElementById('loss').innerHTML='<tr><th>SKU</th><th>Qty</th><th>Revenue</th><th>Unit cost</th><th>Profit</th></tr>'+[...I].sort((x,y)=>S[x][2]-S[y][2]).map(i=>{const s=S[i];return `<tr><td>${L[i]}</td><td>${s[0]}</td><td>${fmt(s[1])}</td><td>${fmt(s[3])}</td><td class="${s[2]<0?'neg':''}">${fmt(s[2])}</td></tr>`}).join('')},
+delivery(){dn('c8',[['Delivered',5322,P],['Returned',244,P2],['Cancelled',130,P3]].filter((_,i)=>F.dv.includes(i)));dn('c9',[['Delayed',3250,P],['On-time',2447,'#ffd1e8']].filter((_,i)=>F.dt.includes(i)))},
+partners(){const T=PT.filter(RF[F.rt]);bar('c10',T.map(p=>'P'+p[0]),[{label:'Contribution',data:T.map(p=>p[4]),backgroundColor:P}]);
+bar('c11',BT.map(p=>'P'+p[0]),[{label:'Contribution',data:BT.map(p=>p[1]),backgroundColor:BT.map(p=>p[1]<0?RED:P3)}]);
+document.getElementById('ptab').innerHTML='<tr><th>Partner</th><th>Trips</th><th>Rating</th><th>Avg min</th><th>Contribution</th></tr>'+T.map(p=>`<tr><td>Partner ${p[0]}</td><td>${p[1]}</td><td>${p[2]}</td><td>${p[3]}</td><td>${fmt(p[4])}</td></tr>`).join('')},
+vehicles(){const V=VD.map((v,i)=>[...v,VC[i]]).filter((_,i)=>F.vh.includes(i)),n=V.map(v=>v[0]);
+bar('c12',n,[{label:'On-time %',data:V.map(v=>v[1]),backgroundColor:V.map(v=>v[5])}]);
+dn('c13',V.map(v=>[v[0],v[2],v[5]]));
+bar('c14',n,[{label:'Avg delay',data:V.map(v=>v[3]),backgroundColor:P2},{label:'Avg delivery time',data:V.map(v=>v[4]),backgroundColor:P}])}
+};
+const T=[['overview','Overview'],['products','Products'],['profit','Profitability'],['delivery','Delivery'],['partners','Partners'],['vehicles','Vehicles']];
+const nav=document.getElementById('nav');
+function show(id){T.forEach(t=>{document.getElementById(t[0]).classList.toggle('on',t[0]==id)});[...nav.children].forEach((b,i)=>b.classList.toggle('on',T[i][0]==id));cur=id;renderSL();B[id]()}
+T.forEach(t=>{const b=document.createElement('button');b.textContent=t[1];b.onclick=()=>show(t[0]);nav.appendChild(b)});
+show('overview');
+</script></body></html>
